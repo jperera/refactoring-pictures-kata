@@ -1,4 +1,6 @@
-public class Picture {
+package pictures;
+
+public class PictureDto {
 
     private Long id;
     private String url;
