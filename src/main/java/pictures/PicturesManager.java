@@ -1,6 +1,5 @@
 package pictures;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,52 +7,51 @@ import static java.util.UUID.randomUUID;
 
 public class PicturesManager {
 
-    private Map<Long, PictureWithOrder> pictures;
+    private Map<Long, PictureDto> pictures;
+    private Map<Long, Integer> orders;
 
     public PicturesManager() {
         this.pictures = new HashMap<>();
+        this.orders = new HashMap<>();
     }
 
     public Long createPicture(PictureDto picture) {
         long id = randomUUID().getLeastSignificantBits();
         picture.setId(id);
-        PictureWithOrder pictureWithOrder = new PictureWithOrder(lastAssignedOrder() + 1, picture);
-        pictures.put(id, pictureWithOrder);
+        pictures.put(id, picture);
+        orders.put(id, lastAssignedOrder() + 1);
         return id;
     }
 
     private Integer lastAssignedOrder() {
-        return pictures.values()
+        return orders.values()
                 .stream()
-                .max(Comparator.comparing(PictureWithOrder::getOrder))
-                .map(PictureWithOrder::getOrder)
+                .max(Integer::compareTo)
                 .orElse(0);
     }
 
     public PictureDto getPicture(Long id) {
-        return getPictureWithOrder(id).getPictureDto();
-    }
-
-    private PictureWithOrder getPictureWithOrder(Long id) {
         if (!pictures.containsKey(id)) throw new PictureNotFoundException();
         return pictures.get(id);
     }
 
     public void selectAsMainPicture(Long id) {
         unSetMainPicture();
-        PictureWithOrder pictureWithOrder = getPictureWithOrder(id);
-        pictureWithOrder.setOrder(1);
+        orders.put(id, 1);
     }
 
     public boolean isMainPicture(Long id) {
-        return getPictureWithOrder(id).getOrder() == 1;
+        if (!orders.containsKey(id)) throw new PictureNotFoundException();
+        return orders.get(id) == 1;
     }
 
     private void unSetMainPicture() {
-        pictures.values()
-                .stream()
-                .filter(p -> p.getOrder() == 1)
-                .forEach(p -> p.setOrder(lastAssignedOrder() + 1));
+        orders.keySet().stream()
+                .filter(k -> orders.get(k) == 1)
+                .forEach(k -> {
+                    int newOrder = lastAssignedOrder() + 1;
+                    orders.put(k, newOrder);
+                });
     }
 
     public void removePicture(Long id) {
