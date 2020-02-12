@@ -2,8 +2,7 @@
 
 El objetivo de esta kata es practicar el uso de refactoring mediante *baby steps*, haciendo especial hincapié en mantener los tests en verde durante todo el tiempo.
 
-
-##Punto de partida
+## Punto de partida
 
 Tenemos una "librería" de gestión de imágenes. La manera de utilizar la funcionalidad de la librería es instanciar la clase PicturesManager, que ofrece acceso al API de la librería:
 
